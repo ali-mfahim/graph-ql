@@ -15,7 +15,7 @@ type Query {
     "List multiple users."
     users(
       "Filters by name. Accepts SQL LIKE wildcards `%` and `_`."
-      name: String @where(operator: "like")
+      name: String @where(op erator: "like")
     ): [User!]! @paginate(defaultCount: 10)
 }
 
