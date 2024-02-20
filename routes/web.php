@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    $link = "gid://shopify/Product/8168406221036";
+    $parts = explode('/', $link);
+    $id = end($parts);
+    dd($id);
     return view('welcome');
 });
-

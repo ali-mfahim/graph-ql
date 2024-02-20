@@ -114,215 +114,19 @@ class GraphQlController extends Controller
   // working good
   public function createProduct(Request $request)
   {
-    $project = $this->getStoreDetails();
-    $url = $project->base_url . $project->api_version . "/graphql.json";
-    $defaultLocation = $this->getDefaultLocationOfStore();
-    $batchProducts = BatchProduct::whereNull("shopify_product_id")->where("is_store", 0)->where("skip", 0)->orderby("id", "ASC")->limit(5)->get();
-    $location_id = isset($defaultLocation->data->locations[0]->admin_graphql_api_id) && !empty($defaultLocation->data->locations[0]->admin_graphql_api_id) ? $defaultLocation->data->locations[0]->admin_graphql_api_id : "0";
+    $batchProducts = BatchProduct::whereNull("shopify_product_id")->where("is_store", 0)->where("skip", 0)->orderby("id", "ASC")->limit(10)->get();
+    $responses = [];
     if (!empty($batchProducts)) {
-      // foreach ($batchProducts as $batchProduct) {
-      //   $bProduct = $batchProduct;
-      //   $params = [
-      //     'productIds' => [$bProduct->product_id],
-      //   ];
-      //   $getProduct = getProductSaleInfo($params);
-      //   $mutation = 'mutation {
-      //     productCreate(input: {
-      //       title: "' . . '",
-      //       descriptionHtml: "' . $request->description . ' ---- ' . Carbon::now()->toDateTimeString() . '",
-      //       productType: "Clothing",
-      //       vendor: "Patpat",
-      //       tags: "test123,2928102,2018202",
-      //       options: [
-      //         "Size",
-      //         "Color"
-      //       ],
-      //       variants: [
-      //         { 
-      //           options: [
-      //             "Grey",
-      //             "2 years"
-      //           ], 
-      //           price: "10", 
-      //           compareAtPrice: "20",
-      //           inventoryItem: {
-      //             cost: "05",
-      //             tracked: true
-      //           },
-      //           inventoryManagement : SHOPIFY,
-      //           inventoryPolicy: CONTINUE,
-      //           inventoryQuantities: [
-      //             {
-      //               availableQuantity: 69 ,
-      //               locationId: "gid://shopify/Location/74805477612"
-      //             }
-      //           ],
-      //           sku: "12345",
-      //           mediaSrc: [
-      //            "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519cebc8.jpg",
-      //           ]
-      //         },
-      //         { 
-      //           options: [
-      //             "Grey",
-      //             "3 years"
-      //           ], 
-      //           price: "10", 
-      //           compareAtPrice: "20",
-      //           inventoryItem: {
-      //             cost: "05",
-      //             tracked: true
-      //           },
-      //           inventoryManagement : SHOPIFY,
-      //           inventoryPolicy: CONTINUE,
-      //           inventoryQuantities: [
-      //             {
-      //               availableQuantity: 52 ,
-      //               locationId: "gid://shopify/Location/74805477612"
-      //             }
-      //           ],
-      //           sku: "654789",
-      //           mediaSrc: [
-      //             "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519cebc8.jpg"
-      //           ]
-      //         },
-      //         { 
-      //           options: [
-      //             "royalblue",
-      //             "3 years"
-      //           ], 
-      //           price: "15", 
-      //           compareAtPrice: "25",
-      //           inventoryItem: {
-      //             cost: "09",
-      //             tracked: true
-      //           },
-      //           inventoryManagement : SHOPIFY,
-      //           inventoryPolicy: CONTINUE,
-      //           inventoryQuantities: [
-      //             {
-      //               availableQuantity: 52 ,
-      //               locationId: "gid://shopify/Location/74805477612"
-      //             }
-      //           ],
-      //           sku: "101112",
-      //           mediaSrc: [
-      //             "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
-      //           ]
-      //         },
-      //         { 
-      //           options: [
-      //             "royalblue",
-      //             "4 years"
-      //           ], 
-      //           price: "15", 
-      //           compareAtPrice: "25",
-      //           inventoryItem: {
-      //             cost: "09",
-      //             tracked: true
-      //           },
-      //           inventoryManagement : SHOPIFY,
-      //           inventoryPolicy: CONTINUE,
-      //           inventoryQuantities: [
-      //             {
-      //               availableQuantity: 52 ,
-      //               locationId: "gid://shopify/Location/74805477612"
-      //             }
-      //           ],
-      //           sku: "131415",
-      //           mediaSrc: [
-      //             "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
-      //           ]
-      //         },
-      //         { 
-      //           options: [
-      //             "royalblue",
-      //             "5 years"
-      //           ], 
-      //           price: "15", 
-      //           compareAtPrice: "25",
-      //           inventoryItem: {
-      //             cost: "09",
-      //             tracked: true
-      //           },
-      //           inventoryManagement : SHOPIFY,
-      //           inventoryPolicy: CONTINUE,
-      //           inventoryQuantities: [
-      //             {
-      //               availableQuantity: 52 ,
-      //               locationId: "gid://shopify/Location/74805477612"
-      //             }
-      //           ],
-      //           sku: "161718",
-      //           mediaSrc: [
-      //             "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
-      //           ]
-      //         }
-      //       ],
-      //     } , 
-      //     media: [
-      //         {
-      //             alt: "IMAGE NOT FOUND",
-      //             mediaContentType: IMAGE,
-      //             originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519cebc8.jpg"
-      //         },
-      //         {
-      //             alt: "IMAGE NOT FOUND",
-      //             mediaContentType: IMAGE,
-      //             originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
-      //         },
-      //         {
-      //           alt: "IMAGE NOT FOUND",
-      //           mediaContentType: IMAGE,
-      //           originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd5196aaee.jpg"
-      //         },
-      //         {
-      //           alt: "IMAGE NOT FOUND",
-      //           mediaContentType: IMAGE,
-      //           originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd51abe899.jpg"
-      //         },
-      //         {
-      //           alt: "IMAGE NOT FOUND",
-      //           mediaContentType: IMAGE,
-      //           originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519dae78.jpg"
-      //         },
-      //         {
-      //           alt: "IMAGE NOT FOUND",
-      //           mediaContentType: IMAGE,
-      //           originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd51a31a3e.jpg"
-      //         }
-      //     ]
-
-      //   ) {
-      //       product {
-      //         id
-      //         title
-      //         productType
-      //         descriptionHtml
-      //         vendor
-      //         variants(first: 10) {
-      //           edges {
-      //             node {
-      //               id
-      //               price
-      //               inventoryQuantity
-      //               image {
-      //                 id
-      //               }
-      //             }
-      //           }
-      //         }
-      //       }
-      //       userErrors {
-      //         field
-      //         message
-      //       }
-      //     }
-      //   }';
-      //   return $getProduct;
-      // }
+      foreach ($batchProducts as $batchProduct) {
+        $bProduct = $batchProduct;
+        $params = [
+          'productIds' => [$bProduct->product_id],
+        ];
+        $getProduct = getProductSaleInfo($params);
+        $responses[] = formatMutationForShopifyProduct($getProduct['data'][0], $batchProduct);
+      }
     }
-
+    return $responses;
     // $variants = [
     //   [
     //       'title' => 'Variant 1 Title',
@@ -335,228 +139,228 @@ class GraphQlController extends Controller
     // ];
     // $variantsJson = json_encode($variants, JSON_UNESCAPED_UNICODE);
     // static mutation
-    $mutation = 'mutation {
-      productCreate(input: {
-        title: "' . $request->title . ' ---- ' . Carbon::now()->toDateTimeString() . '",
-        descriptionHtml: "' . $request->description . ' ---- ' . Carbon::now()->toDateTimeString() . '",
-        productType: "Clothing",
-        vendor: "Patpat",
-        tags: "test123,2928102,2018202",
-        options: [
-          "Size",
-          "Color"
-        ],
-        variants: [
-          { 
-            options: [
-              "Grey",
-              "2 years"
-            ], 
-            price: "10", 
-            compareAtPrice: "20",
-            inventoryItem: {
-              cost: "05",
-              tracked: true
-            },
-            inventoryManagement : SHOPIFY,
-            inventoryPolicy: CONTINUE,
-            inventoryQuantities: [
-              {
-                availableQuantity: 69 ,
-                locationId: "gid://shopify/Location/74805477612"
-              }
-            ],
-            sku: "12345",
-            mediaSrc: [
-             "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519cebc8.jpg",
-            ]
-          },
-          { 
-            options: [
-              "Grey",
-              "3 years"
-            ], 
-            price: "10", 
-            compareAtPrice: "20",
-            inventoryItem: {
-              cost: "05",
-              tracked: true
-            },
-            inventoryManagement : SHOPIFY,
-            inventoryPolicy: CONTINUE,
-            inventoryQuantities: [
-              {
-                availableQuantity: 52 ,
-                locationId: "gid://shopify/Location/74805477612"
-              }
-            ],
-            sku: "654789",
-            mediaSrc: [
-              "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519cebc8.jpg"
-            ]
-          },
-          { 
-            options: [
-              "royalblue",
-              "3 years"
-            ], 
-            price: "15", 
-            compareAtPrice: "25",
-            inventoryItem: {
-              cost: "09",
-              tracked: true
-            },
-            inventoryManagement : SHOPIFY,
-            inventoryPolicy: CONTINUE,
-            inventoryQuantities: [
-              {
-                availableQuantity: 52 ,
-                locationId: "gid://shopify/Location/74805477612"
-              }
-            ],
-            sku: "101112",
-            mediaSrc: [
-              "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
-            ]
-          },
-          { 
-            options: [
-              "royalblue",
-              "4 years"
-            ], 
-            price: "15", 
-            compareAtPrice: "25",
-            inventoryItem: {
-              cost: "09",
-              tracked: true
-            },
-            inventoryManagement : SHOPIFY,
-            inventoryPolicy: CONTINUE,
-            inventoryQuantities: [
-              {
-                availableQuantity: 52 ,
-                locationId: "gid://shopify/Location/74805477612"
-              }
-            ],
-            sku: "131415",
-            mediaSrc: [
-              "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
-            ]
-          },
-          { 
-            options: [
-              "royalblue",
-              "5 years"
-            ], 
-            price: "15", 
-            compareAtPrice: "25",
-            inventoryItem: {
-              cost: "09",
-              tracked: true
-            },
-            inventoryManagement : SHOPIFY,
-            inventoryPolicy: CONTINUE,
-            inventoryQuantities: [
-              {
-                availableQuantity: 52 ,
-                locationId: "gid://shopify/Location/74805477612"
-              }
-            ],
-            sku: "161718",
-            mediaSrc: [
-              "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
-            ]
-          }
-        ],
-      } , 
-      media: [
-          {
-              alt: "IMAGE NOT FOUND",
-              mediaContentType: IMAGE,
-              originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519cebc8.jpg"
-          },
-          {
-              alt: "IMAGE NOT FOUND",
-              mediaContentType: IMAGE,
-              originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
-          },
-          {
-            alt: "IMAGE NOT FOUND",
-            mediaContentType: IMAGE,
-            originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd5196aaee.jpg"
-          },
-          {
-            alt: "IMAGE NOT FOUND",
-            mediaContentType: IMAGE,
-            originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd51abe899.jpg"
-          },
-          {
-            alt: "IMAGE NOT FOUND",
-            mediaContentType: IMAGE,
-            originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519dae78.jpg"
-          },
-          {
-            alt: "IMAGE NOT FOUND",
-            mediaContentType: IMAGE,
-            originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd51a31a3e.jpg"
-          }
-      ]
+    // $mutation = 'mutation {
+    //   productCreate(input: {
+    //     title: "' . $request->title . ' ---- ' . Carbon::now()->toDateTimeString() . '",
+    //     descriptionHtml: "' . $request->description . ' ---- ' . Carbon::now()->toDateTimeString() . '",
+    //     productType: "Clothing",
+    //     vendor: "Patpat",
+    //     tags: "test123,2928102,2018202",
+    //     options: [
+    //       "Size",
+    //       "Color"
+    //     ],
+    //     variants: [
+    //       { 
+    //         options: [
+    //           "Grey",
+    //           "2 years"
+    //         ], 
+    //         price: "10", 
+    //         compareAtPrice: "20",
+    //         inventoryItem: {
+    //           cost: "05",
+    //           tracked: true
+    //         },
+    //         inventoryManagement : SHOPIFY,
+    //         inventoryPolicy: CONTINUE,
+    //         inventoryQuantities: [
+    //           {
+    //             availableQuantity: 69 ,
+    //             locationId: "gid://shopify/Location/74805477612"
+    //           }
+    //         ],
+    //         sku: "12345",
+    //         mediaSrc: [
+    //          "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519cebc8.jpg",
+    //         ]
+    //       },
+    //       { 
+    //         options: [
+    //           "Grey",
+    //           "3 years"
+    //         ], 
+    //         price: "10", 
+    //         compareAtPrice: "20",
+    //         inventoryItem: {
+    //           cost: "05",
+    //           tracked: true
+    //         },
+    //         inventoryManagement : SHOPIFY,
+    //         inventoryPolicy: CONTINUE,
+    //         inventoryQuantities: [
+    //           {
+    //             availableQuantity: 52 ,
+    //             locationId: "gid://shopify/Location/74805477612"
+    //           }
+    //         ],
+    //         sku: "654789",
+    //         mediaSrc: [
+    //           "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519cebc8.jpg"
+    //         ]
+    //       },
+    //       { 
+    //         options: [
+    //           "royalblue",
+    //           "3 years"
+    //         ], 
+    //         price: "15", 
+    //         compareAtPrice: "25",
+    //         inventoryItem: {
+    //           cost: "09",
+    //           tracked: true
+    //         },
+    //         inventoryManagement : SHOPIFY,
+    //         inventoryPolicy: CONTINUE,
+    //         inventoryQuantities: [
+    //           {
+    //             availableQuantity: 52 ,
+    //             locationId: "gid://shopify/Location/74805477612"
+    //           }
+    //         ],
+    //         sku: "101112",
+    //         mediaSrc: [
+    //           "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
+    //         ]
+    //       },
+    //       { 
+    //         options: [
+    //           "royalblue",
+    //           "4 years"
+    //         ], 
+    //         price: "15", 
+    //         compareAtPrice: "25",
+    //         inventoryItem: {
+    //           cost: "09",
+    //           tracked: true
+    //         },
+    //         inventoryManagement : SHOPIFY,
+    //         inventoryPolicy: CONTINUE,
+    //         inventoryQuantities: [
+    //           {
+    //             availableQuantity: 52 ,
+    //             locationId: "gid://shopify/Location/74805477612"
+    //           }
+    //         ],
+    //         sku: "131415",
+    //         mediaSrc: [
+    //           "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
+    //         ]
+    //       },
+    //       { 
+    //         options: [
+    //           "royalblue",
+    //           "5 years"
+    //         ], 
+    //         price: "15", 
+    //         compareAtPrice: "25",
+    //         inventoryItem: {
+    //           cost: "09",
+    //           tracked: true
+    //         },
+    //         inventoryManagement : SHOPIFY,
+    //         inventoryPolicy: CONTINUE,
+    //         inventoryQuantities: [
+    //           {
+    //             availableQuantity: 52 ,
+    //             locationId: "gid://shopify/Location/74805477612"
+    //           }
+    //         ],
+    //         sku: "161718",
+    //         mediaSrc: [
+    //           "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
+    //         ]
+    //       }
+    //     ],
+    //   } , 
+    //   media: [
+    //       {
+    //           alt: "IMAGE NOT FOUND",
+    //           mediaContentType: IMAGE,
+    //           originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519cebc8.jpg"
+    //       },
+    //       {
+    //           alt: "IMAGE NOT FOUND",
+    //           mediaContentType: IMAGE,
+    //           originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/61d42c4f09e1a.jpg"
+    //       },
+    //       {
+    //         alt: "IMAGE NOT FOUND",
+    //         mediaContentType: IMAGE,
+    //         originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd5196aaee.jpg"
+    //       },
+    //       {
+    //         alt: "IMAGE NOT FOUND",
+    //         mediaContentType: IMAGE,
+    //         originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd51abe899.jpg"
+    //       },
+    //       {
+    //         alt: "IMAGE NOT FOUND",
+    //         mediaContentType: IMAGE,
+    //         originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd519dae78.jpg"
+    //       },
+    //       {
+    //         alt: "IMAGE NOT FOUND",
+    //         mediaContentType: IMAGE,
+    //         originalSource: "http://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/oc/clothing/shooting/623bd51a31a3e.jpg"
+    //       }
+    //   ]
 
-    ) {
-        product {
-          id
-          title
-          productType
-          descriptionHtml
-          vendor
-          variants(first: 10) {
-            edges {
-              node {
-                id
-                price
-                inventoryQuantity
-                image {
-                  id
-                }
-              }
-            }
-          }
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }';
+    // ) {
+    //     product {
+    //       id
+    //       title
+    //       productType
+    //       descriptionHtml
+    //       vendor
+    //       variants(first: 10) {
+    //         edges {
+    //           node {
+    //             id
+    //             price
+    //             inventoryQuantity
+    //             image {
+    //               id
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //     userErrors {
+    //       field
+    //       message
+    //     }
+    //   }
+    // }';
+
     // static mutation
 
-    $response = Http::withHeaders([
-      'Content-Type' => 'application/json',
-      'X-Shopify-Access-Token' => $project->access_token,
-    ])->post($url, [
-      'query' => $mutation,
-    ]);
+    // $response = Http::withHeaders([
+    //   'Content-Type' => 'application/json',
+    //   'X-Shopify-Access-Token' => $project->access_token,
+    // ])->post($url, [
+    //   'query' => $mutation,
+    // ]);
 
     // Process the response
-    $data = $response->json();
-    if (isset($data['data']['productCreate']['product']) && !empty($data['data']['productCreate']['product'])) {
-      $product = $data['data']['productCreate']['product'];
-      $product_id = $product['id'];
-      $mediaUrls = [
-        "https://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/000000000000/63dc80e2b9b4b.jpg",
-        "https://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/000000000000/63dc80e29e094.jpg",
-      ];
-      $saveImage = $this->createNewProductImages($product_id, $mediaUrls);
-      return [
-        $product,
-        $saveImage
-      ];
-    } else {
-      return $data['errors'][0];
-    }
+    //   $data = $response->json();
+    //   if (isset($data['data']['productCreate']['product']) && !empty($data['data']['productCreate']['product'])) {
+    //     $product = $data['data']['productCreate']['product'];
+    //     $product_id = $product['id'];
+    //     $mediaUrls = [
+    //       "https://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/000000000000/63dc80e2b9b4b.jpg",
+    //       "https://patpatwebstatic.s3.us-west-2.amazonaws.com/origin/product/000000000000/63dc80e29e094.jpg",
+    //     ];
+    //     $saveImage = $this->createNewProductImages($product_id, $mediaUrls);
+    //     return [
+    //       $product,
+    //       $saveImage
+    //     ];
+    //   } else {
+    //     return $data['errors'][0];
+    //   }
   }
   // working good
-
   // working good
   public function createNewProductImages($productId, $mediaUrls)
   {
